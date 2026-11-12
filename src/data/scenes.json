@@ -1,0 +1,24 @@
+{
+  "fps": 30,
+  "durationInFrames": 900,
+  "scenes": [
+    { "id": "hook", "start": 0, "end": 90, "script": "hook", "speaker": "Marcus", "phase": "hook", "camera": "hero", "audio": [{ "at": 0, "type": "impact" }, { "at": 0.8, "type": "bell" }, { "at": 1.8, "type": "riser" }] },
+    { "id": "catch", "start": 90, "end": 150, "script": "catch", "speaker": "Marcus", "phase": "red", "camera": "host", "audio": [{ "at": 0, "type": "glitch" }] },
+    { "id": "rule", "start": 150, "end": 240, "script": "rule", "speaker": "Marcus", "phase": "shrink", "camera": "wall", "audio": [{ "at": 0.15, "type": "impact" }, { "at": 1.2, "type": "riser" }] },
+    { "id": "protest", "start": 240, "end": 285, "script": "protest", "speaker": "Jordan", "phase": "shrink", "camera": "jordan", "audio": [{ "at": 0, "type": "glitch" }] },
+    { "id": "resolve", "start": 285, "end": 330, "script": "resolve", "speaker": "Maya", "phase": "shrink", "camera": "maya", "audio": [{ "at": 0, "type": "impact" }] },
+    { "id": "crush", "start": 330, "end": 375, "phase": "shrink", "camera": "wall", "audio": [{ "at": 0.25, "type": "riser" }] },
+    { "id": "elapsed", "start": 375, "end": 420, "script": "elapsed", "speaker": "Marcus", "phase": "shrink", "camera": "host", "audio": [{ "at": 0, "type": "bell" }] },
+    { "id": "tapout", "start": 420, "end": 450, "phase": "tapout", "camera": "exit", "audio": [{ "at": 0.35, "type": "impact" }] },
+    { "id": "final-call", "start": 450, "end": 570, "script": "finalCall", "speaker": "Marcus", "phase": "final", "camera": "orbit", "audio": [{ "at": 0, "type": "impact" }, { "at": 1.8, "type": "riser" }, { "at": 3.2, "type": "bell" }] },
+    { "id": "money", "start": 570, "end": 690, "script": "money", "speaker": "Maya", "phase": "final", "camera": "maya", "audio": [{ "at": 0.2, "type": "impact" }, { "at": 1.2, "type": "riser" }] },
+    { "id": "freeze", "start": 690, "end": 720, "phase": "freeze", "camera": "hero", "audio": [{ "at": 0, "type": "impact" }] },
+    { "id": "actually", "start": 720, "end": 750, "script": "actually", "speaker": "Marcus", "phase": "twist", "camera": "host", "audio": [{ "at": 0, "type": "bell" }] },
+    { "id": "pause", "start": 750, "end": 780, "phase": "twist", "camera": "host", "audio": [] },
+    { "id": "reveal-intro", "start": 780, "end": 822, "script": "revealIntro", "speaker": "Marcus", "phase": "twist", "camera": "host", "audio": [{ "at": 0.1, "type": "riser" }] },
+    { "id": "reveal", "start": 822, "end": 840, "script": "reveal", "speaker": "Marcus", "phase": "winner", "camera": "jordan", "audio": [{ "at": 0, "type": "bell" }] },
+    { "id": "payoff", "start": 840, "end": 876, "script": "win", "speaker": "Marcus", "phase": "payoff", "camera": "jordan", "audio": [{ "at": 0, "type": "impact" }, { "at": 0.05, "type": "confetti" }, { "at": 0.4, "type": "swell" }, { "at": 1.1, "type": "bell" }] },
+    { "id": "end-card", "start": 876, "end": 900, "script": "question", "phase": "end", "camera": "end", "audio": [{ "at": 0, "type": "bell" }] }
+  ]
+}
+

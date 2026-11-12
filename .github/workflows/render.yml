@@ -1,0 +1,151 @@
+name: Render vertical short
+
+on:
+  workflow_dispatch:
+    inputs:
+      scale:
+        description: Render scale (1 is full size)
+        type: choice
+        options: ["1", "0.75", "0.5", "0.3"]
+        default: "1"
+      crf:
+        description: H.264 quality, lower is higher quality
+        type: choice
+        options: ["16", "18", "20", "23"]
+        default: "16"
+      chunk_size:
+        description: Frames per render runner
+        type: choice
+        options: ["60", "120", "180", "240"]
+        default: "120"
+  push:
+    paths:
+      - "src/**"
+      - "tools/**"
+      - ".github/workflows/render.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+      total_frames: ${{ steps.plan.outputs.total_frames }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - id: plan
+        env:
+          CHUNK_SIZE: ${{ inputs.chunk_size || '120' }}
+        run: |
+          python - <<'PY'
+          import json, os
+          with open("src/data/scenes.json", encoding="utf-8") as file:
+              total = json.load(file)["durationInFrames"]
+          size = int(os.environ["CHUNK_SIZE"])
+          chunks = [{"start": start, "end": min(start + size, total) - 1, "index": start // size}
+                    for start in range(0, total, size)]
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as output:
+              output.write("matrix=" + json.dumps({"include": chunks}) + "\n")
+              output.write(f"total_frames={total}\n")
+          PY
+
+  render:
+    needs: plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/cache@v4.2.0
+        id: node-cache
+        with:
+          path: node_modules
+          key: node20-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: Install headless Chrome libraries
+        run: sudo apt-get update && sudo apt-get install -y libnss3 libatk1.0-0 libatk-bridge2.0-0 libgbm1 libasound2t64
+      - run: npx remotion browser ensure
+      - name: Render chunk
+        env:
+          START: ${{ matrix.start }}
+          END: ${{ matrix.end }}
+          SCALE: ${{ inputs.scale || '1' }}
+          CRF: ${{ inputs.crf || '16' }}
+          INDEX: ${{ matrix.index }}
+        run: bash scripts/render-chunks.sh "$START" "$END" "$SCALE" "$CRF" "out/chunk-$(printf '%04d' "$INDEX").mp4"
+      - uses: actions/upload-artifact@v4.6.2
+        with:
+          name: chunk-${{ matrix.index }}
+          path: out/chunk-*.mp4
+          if-no-files-found: error
+          retention-days: 3
+
+  assemble:
+    needs: [plan, render]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4.2.2
+      - uses: actions/setup-node@v4.4.0
+        with:
+          node-version: 20
+          cache: npm
+      - uses: actions/cache@v4.2.0
+        id: node-cache
+        with:
+          path: node_modules
+          key: node20-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+      - if: steps.node-cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - uses: actions/download-artifact@v4.3.0
+        with:
+          pattern: chunk-*
+          path: out/chunks
+          merge-multiple: true
+      - name: Join video chunks
+        run: bash scripts/join.sh out/chunks out/silent.mp4
+      - uses: actions/setup-python@v5.6.0
+        with:
+          python-version: "3.12"
+      - run: python -m pip install numpy
+      - run: python tools/make_audio.py
+      - run: bash scripts/mux.sh out/silent.mp4 out/soundtrack.wav out/final.mp4
+      - name: Verify duration and frame count
+        env:
+          EXPECTED_FRAMES: ${{ needs.plan.outputs.total_frames }}
+        run: |
+          python - <<'PY'
+          import json, os, subprocess, sys
+          expected = int(os.environ["EXPECTED_FRAMES"])
+          result = subprocess.run(
+              ["ffprobe", "-v", "error", "-count_frames", "-select_streams", "v:0",
+               "-show_entries", "stream=nb_read_frames,r_frame_rate", "-show_entries", "format=duration",
+               "-of", "json", "out/final.mp4"], check=True, capture_output=True, text=True)
+          data = json.loads(result.stdout)
+          stream = data["streams"][0]
+          frames = int(stream["nb_read_frames"])
+          duration = float(data["format"]["duration"])
+          if frames != expected or abs(duration - expected / 30) > 0.08:
+              sys.exit(f"Output mismatch: {frames} frames, {duration:.3f}s; expected {expected} frames / {expected / 30:.3f}s")
+          print(f"Verified {frames} frames and {duration:.3f}s")
+          PY
+      - uses: actions/upload-artifact@v4.6.2
+        with:
+          name: final-video
+          path: |
+            out/final.mp4
+            out/silent.mp4
+            out/soundtrack.wav
+          if-no-files-found: error
+          retention-days: 14
+
