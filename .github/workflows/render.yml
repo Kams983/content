@@ -107,6 +107,8 @@ jobs:
           key: node20-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
       - if: steps.node-cache.outputs.cache-hit != 'true'
         run: npm ci
+      - name: Install FFmpeg
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
       - uses: actions/download-artifact@v4.3.0
         with:
           pattern: chunk-*
@@ -148,4 +150,3 @@ jobs:
             out/soundtrack.wav
           if-no-files-found: error
           retention-days: 14
-
