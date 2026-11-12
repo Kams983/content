@@ -2,7 +2,7 @@
 
 A 30-second vertical 3D animated short made with Remotion, React Three Fiber, and procedural audio. Marcus hosts as Jordan, Maya, and Ethan compete inside a transparent shrinking box.
 
-The approved dialogue is kept verbatim. Characters are named only for direction; their names are not added to the spoken script or captions. No stills or video were rendered while preparing this repository.
+The approved dialogue is kept verbatim. Dialogue captions include a separate speaker-name badge for reference; speaker names are not inserted into the spoken lines. The humans use a deliberately stylized low-poly look with distinct faces, hair, clothing, and animated poses. No stills or video were rendered while preparing this repository.
 
 ## Requirements
 

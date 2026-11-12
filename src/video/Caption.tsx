@@ -12,6 +12,7 @@ export const Caption: React.FC<{frame: number; scene: Scene; progress: number}> 
   const pop = interpolate(progress, [0, 0.12, 1], [0.82, 1, 1], {extrapolateRight: 'clamp'});
   const jitter = scene.phase === 'red' && frame < scene.start + 9 ? Math.sin(frame * 4.1) * 2 : 0;
   const fontSize = scene.id === 'hook' || scene.id === 'final-call' ? 63 : 70;
+  const speakerColor = scene.speaker === 'Jordan' ? '#f08c56' : scene.speaker === 'Maya' ? '#42a9a0' : '#9eb6ff';
 
   return (
     <div style={{
@@ -20,6 +21,25 @@ export const Caption: React.FC<{frame: number; scene: Scene; progress: number}> 
       transform: `translateY(${jitter}px) scale(${pop})`,
       fontFamily: 'Inter, Arial, Helvetica, sans-serif', textAlign: 'center',
     }}>
+      {scene.speaker && (
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14,
+          padding: '7px 16px 7px 10px', borderRadius: 999,
+          background: 'rgba(7,11,20,.88)', border: '1px solid rgba(255,255,255,.2)',
+          boxShadow: '0 5px 18px rgba(0,0,0,.4)',
+        }}>
+          <span style={{
+            width: 10, height: 10, borderRadius: '50%', background: speakerColor,
+            boxShadow: `0 0 12px ${speakerColor}`,
+          }} />
+          <span style={{
+            color: THEME.text, fontSize: 23, fontWeight: 850, letterSpacing: 2.2, lineHeight: 1,
+            textTransform: 'uppercase',
+          }}>
+            {scene.speaker}
+          </span>
+        </div>
+      )}
       <div style={{
         display: 'flex', flexWrap: 'wrap', justifyContent: 'center', columnGap: 16, rowGap: 4,
         maxWidth: 800, color: THEME.text, fontSize, lineHeight: 1.08, fontWeight: 950,
