@@ -15,5 +15,5 @@ fi
 for file in "${files[@]}"; do
   printf "file '%s'\n" "$(realpath "$file")" >> "$list_file"
 done
-ffmpeg -hide_banner -y -f concat -safe 0 -i "$list_file" -c copy -movflags +faststart "$output"
-
+ffmpeg -hide_banner -y -f concat -safe 0 -i "$list_file" \
+  -map 0:v:0 -an -c:v copy -movflags +faststart "$output"

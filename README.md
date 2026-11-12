@@ -39,7 +39,7 @@ npm run audio
 npm run mux
 ```
 
-The render uses 1080x1920, 30 fps, H.264, CRF 16, yuv420p, scale 1, and ANGLE. `npm run render` creates `out/silent.mp4`; the audio command creates 44.1 kHz stereo `out/soundtrack.wav`; mux creates `out/final.mp4` with AAC 192 kb/s and loudness normalization. FFmpeg must be available on PATH.
+The render uses 1080x1920, 30 fps, H.264, CRF 16, yuv420p, scale 1, and ANGLE. Video chunks are rendered muted so audio timestamps cannot introduce gaps during concatenation. `npm run render` creates `out/silent.mp4`; the audio command creates 44.1 kHz stereo `out/soundtrack.wav`; mux creates `out/final.mp4` with AAC 192 kb/s and loudness normalization. FFmpeg must be available on PATH.
 
 To render in chunks locally (use Git Bash):
 
